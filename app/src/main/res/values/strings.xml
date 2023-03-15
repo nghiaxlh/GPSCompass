@@ -14,4 +14,12 @@
     <string name="location">Location</string>
     <string name="weather">Weather</string>
     <string name="map">Map</string>
+    <string name="text_address_found">Address not found</string>
+    <string name="text_no_address_found">Address not found</string>
+    <string name="text_invalid_lat_long_used">Invalid lat long used</string>
+    <string name="noti_service_not_available">Service Not Available</string>
+    <string name="no_location_data_provided">No location data provided</string>
+    <string name="text_direction">%d° %s</string>
+    <string name="accept_privacy"><![CDATA[Accept & Privacy]]></string>
+    <string name="compass">Compass</string>
 </resources>

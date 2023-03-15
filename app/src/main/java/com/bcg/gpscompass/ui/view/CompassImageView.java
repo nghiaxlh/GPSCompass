@@ -9,7 +9,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.AppCompatImageView;
 
 public class CompassImageView extends AppCompatImageView {
-    private float mDegress = 0;
+    private float mDegrees = 0;
     private int mX, mY;
     private boolean isDrag = false;
 
@@ -26,7 +26,7 @@ public class CompassImageView extends AppCompatImageView {
     }
 
     public void setDegress(float degress) {
-        mDegress = degress;
+        mDegrees = degress;
     }
 
     public void setDrag(boolean isMainDrag) {
@@ -42,7 +42,7 @@ public class CompassImageView extends AppCompatImageView {
             mX = w / 2;
             mY = h / 2;
         }
-        canvas.rotate(mDegress, mX, mY);
+        canvas.rotate(mDegrees, mX, mY);
         super.onDraw(canvas);
     }
 }
