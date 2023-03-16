@@ -5,11 +5,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/backgroundColor"
-    android:gravity="center_vertical"
     tools:context=".ui.screen.privacy.PrivacyFragment">
 
     <RelativeLayout
         android:layout_width="wrap_content"
+        android:id="@+id/rl_logo"
+        android:layout_centerInParent="true"
         android:layout_height="wrap_content">
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/iv_logo_compass"
@@ -23,7 +24,6 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/iv_logo_compass"
-            android:layout_centerHorizontal="true"
             android:layout_marginTop="8dp"
             android:src="@drawable/ic_shadow_logo_compass" />
 
@@ -42,12 +42,35 @@
     </RelativeLayout>
 
     <androidx.appcompat.widget.AppCompatButton
+        android:id="@+id/btn_accept"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/accept_privacy"
         android:background="@drawable/background_gradient_button"
-        android:textColor="@color/white"
         android:paddingHorizontal="16dp"
+        android:text="@string/accept_privacy"
+        android:layout_above="@id/tv_accept_policy"
         android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"/>
+        android:layout_marginBottom="16dp"
+        android:textColor="@color/white" />
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_accept_policy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/accept_private_policy"
+        android:textColor="@color/white"
+        android:layout_above="@id/tv_policy"
+        android:layout_marginBottom="4dp"
+        android:layout_centerHorizontal="true"
+        android:textSize="14sp"/>
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tv_policy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/privacy_policy"
+        android:textColor="@color/buttonColor2"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="16dp"
+        android:textSize="14sp"/>
+
 </RelativeLayout>

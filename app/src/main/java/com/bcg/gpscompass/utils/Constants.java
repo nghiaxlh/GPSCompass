@@ -22,7 +22,7 @@ public class Constants {
 
 
     public static int TYPE_WIFI = 1;
-    public static int TYPE_DEVICE= 2;
+    public static int TYPE_DEVICE = 2;
     public static int TYPE_NOT_INTERNET = 0;
     public static final String FILE_NAME_SHARE = "FILE_NAME_SHARE";
     public static final String RATED_IN_STORE = "RATED_IN_STORE";
@@ -45,4 +45,8 @@ public class Constants {
     public static final String LOCATION_STRING_EXTRA = PACKAGE_NAME +
             ".LOCATION_DATA_STRING_EXTRA";
     public static final String POLICY_URL = "https://sites.google.com/view/gps-compass-navigation-map";
+
+    ///preference
+    public static final String PREF_PRIVATE_POLICY_KEY = "PREF_PRIVATE_POLICY_KEY";
+    public static final String PREF_FIRST_OPEN_KEY = "PREF_FIRST_OPEN_KEY";
 }
