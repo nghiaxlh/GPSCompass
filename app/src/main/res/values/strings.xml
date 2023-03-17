@@ -24,4 +24,7 @@
     <string name="compass">Compass</string>
     <string name="privacy_policy">Privacy Policy</string>
     <string name="accept_private_policy">By proceeding you agree with our</string>
+    <string name="address">Address</string>
+    <string name="latitude">Latitude</string>
+    <string name="longitude">Longitude</string>
 </resources>

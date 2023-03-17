@@ -1,11 +1,13 @@
 package com.bcg.gpscompass.ui.screen.privacy;
 
 import static com.bcg.gpscompass.utils.Constants.PREF_FIRST_OPEN_KEY;
-import static com.bcg.gpscompass.utils.Constants.PREF_PRIVATE_POLICY_KEY;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -13,12 +15,8 @@ import androidx.appcompat.widget.AppCompatButton;
 import androidx.appcompat.widget.AppCompatTextView;
 import androidx.fragment.app.Fragment;
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-
+import com.bcg.gpscompass.MainActivity;
 import com.bcg.gpscompass.R;
-import com.bcg.gpscompass.utils.Navigator;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -36,9 +34,8 @@ public class PrivacyFragment extends Fragment implements View.OnClickListener {
         // Required empty public constructor
     }
 
-    public static PrivacyFragment newInstance(String param1, String param2) {
+    public static PrivacyFragment newInstance() {
         PrivacyFragment fragment = new PrivacyFragment();
-        Bundle args = new Bundle();
         return fragment;
     }
 
@@ -67,7 +64,8 @@ public class PrivacyFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.btn_accept:
-                prefs.edit().putBoolean(PREF_FIRST_OPEN_KEY, true).apply();
+                prefs.edit().putBoolean(PREF_FIRST_OPEN_KEY, false).apply();
+                ((MainActivity) requireActivity()).showCompassUI();
                 break;
             case R.id.tv_policy:
                 //TODO open link policy

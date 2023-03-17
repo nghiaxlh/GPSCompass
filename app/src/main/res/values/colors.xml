@@ -2,8 +2,10 @@
 <resources>
     <color name="backgroundColor">#FF0A0F15</color>
     <color name="backgroundButtonColor">#FF1F2429</color>
+    <color name="color_black_B3303030">#B3303030</color>
     <color name="buttonColor1">#FF759BFD</color>
     <color name="buttonColor2">#FF3A6DF1</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="color_white_E0E0E0">#FFE0E0E0</color>
 </resources>
