@@ -27,4 +27,5 @@
     <string name="address">Address</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
+    <string name="map_access_token">pk.eyJ1IjoiYmNnOTMiLCJhIjoiY2xmZGQ1MGIzMXcxbzN3bDdtNnVpdWd0MiJ9.s-W71_3dPgkSrUxqDRfcZA</string>
 </resources>

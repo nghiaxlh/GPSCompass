@@ -1,17 +1,30 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:mapbox="http://schemas.android.com/apk/res-auto"
     xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
     <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolBar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
         android:background="@color/backgroundColor"
         app:layout_constraintBaseline_toTopOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintLeft_toRightOf="parent" />
+
+    <com.mapbox.maps.MapView
+        android:id="@+id/mapView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/toolBar"
+        mapbox:mapbox_resourcesAccessToken="@string/map_access_token"
+        mapbox:mapbox_cameraZoom="9.0" />
 
     <RelativeLayout
         android:id="@+id/rl_info_location"
@@ -20,7 +33,7 @@
         android:layout_marginStart="16dp"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="24dp"
-        android:background="@color/color_black_B3303030"
+        android:background="@drawable/background_item_location"
         android:padding="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -56,8 +69,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_title_address"
-            android:layout_marginBottom="16dp"
             android:layout_alignParentStart="true"
+            android:layout_marginBottom="16dp"
             android:text="@string/latitude"
             android:textColor="@color/color_white_E0E0E0"
             android:textSize="14sp" />
@@ -68,10 +81,10 @@
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_address"
             android:layout_alignParentEnd="true"
-            android:text="@string/address"
-            android:textColor="@color/white"
             android:layout_marginStart="16dp"
             android:layout_marginBottom="16dp"
+            android:text="@string/address"
+            android:textColor="@color/white"
             android:textSize="14sp"
             android:textStyle="bold"
             tool:text="21.0301443" />

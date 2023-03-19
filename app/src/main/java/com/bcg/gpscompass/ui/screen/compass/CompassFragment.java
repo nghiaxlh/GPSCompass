@@ -1,66 +1,48 @@
 package com.bcg.gpscompass.ui.screen.compass;
 
+import static android.os.Looper.getMainLooper;
+
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.Intent;
-import android.content.IntentSender;
 import android.content.pm.PackageManager;
-import android.graphics.SurfaceTexture;
 import android.graphics.Typeface;
-import android.hardware.Camera;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.location.Geocoder;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.ResultReceiver;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
+import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
+
+import com.bcg.gpscompass.MainActivity;
 import com.bcg.gpscompass.R;
 import com.bcg.gpscompass.ui.base.BaseFragment;
+import com.bcg.gpscompass.ui.screen.location.LocationFragment;
 import com.bcg.gpscompass.ui.view.CompassImageView;
-import com.bcg.gpscompass.utils.Constants;
-import com.bcg.gpscompass.utils.gps.GpsLocationService;
 import com.bcg.gpscompass.utils.gps.GpsUtil;
+import com.bcg.gpscompass.utils.location.LocationListenerCallback;
 import com.bcg.gpscompass.utils.sensor.SensorManagerCompass;
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
+import com.mapbox.android.core.location.LocationEngine;
+import com.mapbox.android.core.location.LocationEngineProvider;
+import com.mapbox.android.core.location.LocationEngineRequest;
 
-import java.util.Objects;
+public class CompassFragment extends BaseFragment<CompassPresenter> implements SensorEventListener, CompassListener,LocationListenerCallback.LocationUpdateListener, View.OnClickListener {
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
-public class CompassFragment extends BaseFragment<CompassPresenter> implements SensorEventListener, CompassListener, View.OnClickListener {
-
+    long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
     private SensorManagerCompass mSensorManagerCompass;
     private CompassImageView mCustomImageCompassView;
     private TextView mTxtAddress;
-    private TextView mTvDegreesDirection;
     private ImageButton mBtnMap;
     private ImageButton mBtnLocation;
     private ImageButton mBtnWeather;
@@ -70,12 +52,6 @@ public class CompassFragment extends BaseFragment<CompassPresenter> implements S
     private float[] valuesMagnetic = new float[]{0.5f, 0f, 0f};
     private float mAzimuth;
 
-    private FusedLocationProviderClient fusedLocationProviderClient;
-    private Location mLastLocation;
-    private LocationRequest mLocationRequest;
-    private AddressResultReceiver addressResultReceiver;
-    private String mLocationOutput;
-    private String mFullLocation;
     private static final int CURRENT_REQUEST = 112;
     private float[] mGravity;
     private double currentInclinationX;
@@ -84,6 +60,26 @@ public class CompassFragment extends BaseFragment<CompassPresenter> implements S
     private double startInclinationY;
     private ImageView ivBallCompass;
     private float AA = 0.3F;
+    long DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5;
+    private ActivityResultLauncher<String> requestPermissionLauncher =
+            registerForActivityResult(new ActivityResultContracts.RequestPermission(), isGranted -> {
+                if (isGranted) {
+                    getLastLocation();
+                } else {
+                    // Explain to the user that the feature is unavailable because the
+                    // feature requires a permission that the user has denied. At the
+                    // same time, respect the user's decision. Don't link to system
+                    // settings in an effort to convince the user to change their
+                    // decision.
+                }
+            });
+    private LocationListenerCallback callback;
+    private LocationEngine locationEngine;
+    private String address;
+
+    private double latitude;
+
+    private double longitude;
 
     public CompassFragment() {
     }
@@ -97,71 +93,13 @@ public class CompassFragment extends BaseFragment<CompassPresenter> implements S
         return new CompassPresenter(this);
     }
 
-    @SuppressLint("MissingPermission")
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 //        mTypeface = ResourcesCompat.getFont(getActivity(), R.font.font_roboto_bold);
         mSensorManagerCompass = new SensorManagerCompass(requireActivity());
-        addressResultReceiver = new AddressResultReceiver(new Handler());
-        fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(Objects.requireNonNull(getActivity()));
-        mLocationOutput = "";
-        mFullLocation = "";
-        createLocationRequest();
-        locationSetting();
+        callback = new LocationListenerCallback(requireActivity(), this);
     }
-
-    private void createLocationRequest() {
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-    }
-
-    @SuppressLint("MissingPermission")
-    @Nullable
-    @Override
-    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_compass, container, false);
-        //RateUsDialogApp.showDialogRateApp(getActivity());
-        mBtnMap = (ImageButton) view.findViewById(R.id.btn_map_compass);
-        mBtnLocation = (ImageButton) view.findViewById(R.id.btn_location_compass);
-        mCustomImageCompassView = (CompassImageView) view.findViewById(R.id.iv_compass);
-        mTxtAddress = (TextView) view.findViewById(R.id.tv_address);
-        //mTvDegreesDirection = (TextView) view.findViewById(R.id.tv_degrees_direction_home);
-//        mTvCity.setTypeface(mTypeface);
-//        mTvCity.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-//        mTvCity.setSelected(true);
-//        mTvCity.setText("Wait...");
-//        mTvDegreesDirection.setTypeface(mTypeface);
-//        nativeExpressAdView = view.findViewById(R.id.ads_banner_home);
-
-//        rlLimited = view.findViewById(R.id.rl_limit);
-//        ivBallCompass = view.findViewById(R.id.iv_ball);
-
-        mBtnWeather = view.findViewById(R.id.btn_weather_compass);
-        mBtnWeather.setOnClickListener(this);
-        mBtnLocation.setOnClickListener(this);
-        mBtnMap.setOnClickListener(this);
-
-//        admobBannerUnit();
-        getLastLocation();
-        return view;
-    }
-
-    LocationCallback mLocationCallback = new LocationCallback() {
-        @Override
-        public void onLocationResult(LocationResult locationResult) {
-            if (locationResult == null) {
-                return;
-            }
-            for (Location location : locationResult.getLocations()) {
-                mPresenter.setTextLocation(location.getLatitude(), location.getLongitude());
-                mLastLocation = location;
-                getLocation();
-            }
-        }
-    };
 
     public static void xyzAnim(View paramView, double[] paramArrayOfDouble1, double[] paramArrayOfDouble2, int paramInt) {
         try {
@@ -198,72 +136,53 @@ public class CompassFragment extends BaseFragment<CompassPresenter> implements S
 //        currentInclinationY = (dbLayout * dbListArray[1]);
     }
 
-//    private void admobBannerUnit() {
-//        final AdView mAdView = new AdView(Objects.requireNonNull(getContext()));
-//        final AdRequest adRequest = new AdRequest.Builder().build();
-//        mAdView.setAdSize(AdSize.BANNER);
-//        mAdView.setAdUnitId(getString(R.string.banner_id_1));
-////        nativeExpressAdView.addView(mAdView);
-//        mAdView.loadAd(adRequest);
-//        mAdView.setAdListener(new AdListener() {
-//            @Override
-//            public void onAdClosed() {
-//                super.onAdClosed();
-//            }
-//
-//            @Override
-//            public void onAdOpened() {
-//                super.onAdOpened();
-//            }
-//
-//            @Override
-//            public void onAdLeftApplication() {
-//                super.onAdLeftApplication();
-//            }
-//
-//            @Override
-//            public void onAdFailedToLoad(int i) {
-//                super.onAdFailedToLoad(i);
-//            }
-//
-//            @Override
-//            public void onAdLoaded() {
-//                super.onAdLoaded();
-//            }
-//        });
-//    }
+    @Nullable
+    @Override
+    public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.fragment_compass, container, false);
+        mBtnMap = (ImageButton) view.findViewById(R.id.btn_map_compass);
+        mBtnLocation = (ImageButton) view.findViewById(R.id.btn_location_compass);
+        mCustomImageCompassView = (CompassImageView) view.findViewById(R.id.iv_compass);
+        mTxtAddress = (TextView) view.findViewById(R.id.tv_address);
+        //mTvDegreesDirection = (TextView) view.findViewById(R.id.tv_degrees_direction_home);
+//        mTvCity.setTypeface(mTypeface);
+//        mTvCity.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+//        mTvCity.setSelected(true);
+//        mTvCity.setText("Wait...");
+//        mTvDegreesDirection.setTypeface(mTypeface);
+//        nativeExpressAdView = view.findViewById(R.id.ads_banner_home);
+
+//        rlLimited = view.findViewById(R.id.rl_limit);
+//        ivBallCompass = view.findViewById(R.id.iv_ball);
+
+        mBtnWeather = view.findViewById(R.id.btn_weather_compass);
+        mBtnWeather.setOnClickListener(this);
+        mBtnLocation.setOnClickListener(this);
+        mBtnMap.setOnClickListener(this);
+        if (ContextCompat.checkSelfPermission(
+                requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION) ==
+                PackageManager.PERMISSION_GRANTED) {
+            getLastLocation();
+        } else if (shouldShowRequestPermissionRationale("ABC")) {
+//            showInContextUI(...);
+        } else {
+            requestPermissionLauncher.launch(
+                    Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        return view;
+    }
 
     @SuppressLint("MissingPermission")
     private void getLastLocation() {
-        fusedLocationProviderClient.getLastLocation()
-                .addOnSuccessListener(Objects.requireNonNull(getActivity()), new OnSuccessListener<Location>() {
-                    @Override
-                    public void onSuccess(Location location) {
-                        if (location != null) {
-                            mLastLocation = location;
-                            mPresenter.setTextLocation(location.getLatitude(), location.getLongitude());
-                            getLocation();
-                        } else {
-                        }
-                    }
-                });
-    }
+        locationEngine = LocationEngineProvider.getBestLocationEngine(requireActivity());
 
-    private void getLocation() {
-        if (!Geocoder.isPresent()) {
-            Toast.makeText(getActivity(),
-                    "Can't find current address, ",
-                    Toast.LENGTH_SHORT).show();
-            return;
-        }
-        startIntentService();
-    }
+        LocationEngineRequest request = new LocationEngineRequest.Builder(DEFAULT_INTERVAL_IN_MILLISECONDS)
+                .setPriority(LocationEngineRequest.PRIORITY_NO_POWER)
+                .setMaxWaitTime(DEFAULT_MAX_WAIT_TIME)
+                .build();
 
-    protected void startIntentService() {
-        Intent intent = new Intent(getActivity(), GpsLocationService.class);
-        intent.putExtra(Constants.RECEIVER_EXTRA, addressResultReceiver);
-        intent.putExtra(Constants.LOCATION_EXTRA, mLastLocation);
-        getActivity().startService(intent);
+        locationEngine.requestLocationUpdates(request, callback, getMainLooper());
+        locationEngine.getLastLocation(callback);
     }
 
     @Override
@@ -272,23 +191,12 @@ public class CompassFragment extends BaseFragment<CompassPresenter> implements S
         mSensorManagerCompass.registerAccelerometerListener(this);
         mSensorManagerCompass.registerMagneListener(this);
         mSensorManagerCompass.registerOriListener(this);
-        startLocationUpdates();
-    }
-
-    @SuppressLint("MissingPermission")
-    private void startLocationUpdates() {
-        fusedLocationProviderClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
     }
 
     @Override
     public void onPause() {
         super.onPause();
         mSensorManagerCompass.unregisterListener(this);
-        stopUpdateLocation();
-    }
-
-    private void stopUpdateLocation() {
-        fusedLocationProviderClient.removeLocationUpdates(mLocationCallback);
     }
 
     @Override
@@ -352,12 +260,6 @@ public class CompassFragment extends BaseFragment<CompassPresenter> implements S
     }
 
     @Override
-    public void setTextForLocation(double lat, double lon) {
-        String latitude = GpsUtil.decimalToDMS(lat) + GpsUtil.getSymbol(lat, true);
-        String longitude = GpsUtil.decimalToDMS(lon) + GpsUtil.getSymbol(lon, false);
-    }
-
-    @Override
     public void onClick(View view) {
         switch (view.getId()) {
 
@@ -375,31 +277,16 @@ public class CompassFragment extends BaseFragment<CompassPresenter> implements S
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if (requestCode == CURRENT_REQUEST) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                getCamera();
-            } else {
-                Toast.makeText(getContext(), "The app was not allowed to access camera", Toast.LENGTH_LONG).show();
-            }
-        }
-    }
-
-    @SuppressLint("LongLogTag")
-    private void getCamera() {
-
-    }
-
-    @Override
     public void onDestroy() {
         super.onDestroy();
+        if (locationEngine != null) {
+            locationEngine.removeLocationUpdates(callback);
+        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        getCamera();
     }
 
     @Override
@@ -415,10 +302,8 @@ public class CompassFragment extends BaseFragment<CompassPresenter> implements S
 
     @Override
     public void showLocationCompass() {
-//        Intent intent = new Intent(getActivity(), LocationActivity.class);
-//        intent.putExtra(AppConstantUtils.LOCATION_EXTRA, mLastLocation);
-//        intent.putExtra(AppConstantUtils.LOCATION_STRING_EXTRA, mFullLocation);
-//        startActivity(intent);
+        LocationFragment fragment = LocationFragment.Companion.newInstance("ABCD", latitude, longitude);
+        ((MainActivity) requireActivity()).addFragment(fragment);
     }
 
     @Override
@@ -448,55 +333,9 @@ public class CompassFragment extends BaseFragment<CompassPresenter> implements S
 //        startActivity(intent);
     }
 
-
-    class AddressResultReceiver extends ResultReceiver {
-
-        public AddressResultReceiver(Handler handler) {
-            super(handler);
-        }
-
-        @Override
-        protected void onReceiveResult(int resultCode, Bundle resultData) {
-            if (resultData == null) {
-                return;
-            }
-            mLocationOutput = resultData.getString(Constants.RESULT_KEY_ADDRESS);
-            mFullLocation = resultData.getString(Constants.RESULT_KEY_ADDRESS_FULL);
-
-            displayAddressOutput(mFullLocation);
-            if (resultCode == Constants.SUCCESS_RESULT) {
-                mPresenter.showIconLocation();
-            }
-        }
-    }
-
-    private void displayAddressOutput(String currentAddress) {
-        mTxtAddress.setText(currentAddress);
-    }
-
-    private void locationSetting() {
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
-        Task<LocationSettingsResponse> result = LocationServices.getSettingsClient(getActivity()).checkLocationSettings(builder.build());
-        result.addOnCompleteListener(new OnCompleteListener<LocationSettingsResponse>() {
-            @Override
-            public void onComplete(@NonNull Task<LocationSettingsResponse> task) {
-                try {
-                    LocationSettingsResponse response = task.getResult(ApiException.class);
-                } catch (ApiException exception) {
-                    switch (exception.getStatusCode()) {
-                        case LocationSettingsStatusCodes.RESOLUTION_REQUIRED:
-                            try {
-                                ResolvableApiException resolvable = (ResolvableApiException) exception;
-                                resolvable.startResolutionForResult(getActivity(), Constants.REQUEST_SETTINGS);
-                            } catch (IntentSender.SendIntentException | ClassCastException e) {
-                                e.printStackTrace();
-                            }
-                            break;
-                        case LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE:
-                            break;
-                    }
-                }
-            }
-        });
+    @Override
+    public void updateLocation(Location location) {
+        latitude = location.getLatitude();
+        longitude = location.getLongitude();
     }
 }

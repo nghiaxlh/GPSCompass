@@ -13,10 +13,6 @@ public class CompassPresenter extends BasePresenter<CompassListener> {
         mView.setChangeDirectionCompass(sensorEvent);
     }
 
-    public void setTextLocation(double latitude, double longitude) {
-        mView.setTextForLocation(latitude, longitude);
-    }
-
     public void openViewGoogleMaps() {
         mView.showViewGoogleMapsCompass();
     }
