@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
 
 class CompassViewModel(private val repository: GpsCompassRepository): ViewModel() {
-    private val geoCodings : MutableStateFlow<ApiState> = MutableStateFlow(ApiState.Empty)
+    val geoCodings : MutableStateFlow<ApiState> = MutableStateFlow(ApiState.Empty)
     fun getFlowerList(lat: Double, lon: Double) = viewModelScope.launch {
         geoCodings.value = ApiState.Loading
         repository.getGeocodingFromLocation(lat, lon)
@@ -17,7 +17,6 @@ class CompassViewModel(private val repository: GpsCompassRepository): ViewModel(
                 geoCodings.value = ApiState.Failure(e)
             }.collect { data ->
                 geoCodings.value = ApiState.Success(data)
-                print("nghialh $data");
             }
     } // getFlower
 }

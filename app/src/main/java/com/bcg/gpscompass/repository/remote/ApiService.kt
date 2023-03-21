@@ -9,11 +9,10 @@ import retrofit2.http.Query
 
 interface ApiService {
 
-    @GET(ApiUtil.GEOCODING + "{lat},{lon}.json")
+    @GET(ApiUtil.GEOCODING)
     suspend fun getDataList(
-        @Path("lat") lat: Double,
-        @Path("lon") lon: Double,
-        @Query("access_token") token: String = BuildConfig.MapboxAccessToken
+        @Query("lat") lat: Double,
+        @Query("lon") lon: Double,
     ): Geocoding
 
 }

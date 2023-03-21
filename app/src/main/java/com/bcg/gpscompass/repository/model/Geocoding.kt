@@ -3,49 +3,27 @@ package com.bcg.gpscompass.repository.model
 import com.google.gson.annotations.SerializedName
 
 data class Geocoding(
-    val type: String,
-    val query: List<Double>,
-    val features: List<Feature>,
-    val attribution: String,
-)
+    @SerializedName("place_id") var placeId: Int? = null,
+    @SerializedName("licence") var licence: String? = null,
+    @SerializedName("powered_by") var poweredBy: String? = null,
+    @SerializedName("osm_type") var osmType: String? = null,
+    @SerializedName("osm_id") var osmId: Int? = null,
+    @SerializedName("lat") var lat: String? = null,
+    @SerializedName("lon") var lon: String? = null,
+    @SerializedName("display_name") var displayName: String? = null,
+    @SerializedName("address") var address: Address? = Address(),
+    @SerializedName("boundingbox") var boundingbox: ArrayList<String> = arrayListOf()
 
-data class Feature(
-    val id: String,
-    val type: String,
-    @SerializedName("place_type")
-    val placeType: List<String>,
-    val relevance: Long,
-    val properties: Properties,
-    val text: String,
-    @SerializedName("place_name")
-    val placeName: String,
-    val center: List<Double>,
-    val geometry: Geometry,
-    val address: String?,
-    val context: List<Context>?,
-    val bbox: List<Double>?,
 )
+data class Address(
+    @SerializedName("building") var building: String? = null,
+    @SerializedName("house_number") var houseNumber: String? = null,
+    @SerializedName("road") var road: String? = null,
+    @SerializedName("suburb") var suburb: String? = null,
+    @SerializedName("city_district") var cityDistrict: String? = null,
+    @SerializedName("city") var city: String? = null,
+    @SerializedName("postcode") var postcode: String? = null,
+    @SerializedName("country") var country: String? = null,
+    @SerializedName("country_code") var countryCode: String? = null
 
-data class Properties(
-    val accuracy: String?,
-    @SerializedName("mapbox_id")
-    val mapboxId: String,
-    val wikidata: String?,
-    @SerializedName("short_code")
-    val shortCode: String?,
-)
-
-data class Geometry(
-    val type: String,
-    val coordinates: List<Double>,
-)
-
-data class Context(
-    val id: String,
-    @SerializedName("mapbox_id")
-    val mapboxId: String,
-    val text: String,
-    val wikidata: String?,
-    @SerializedName("short_code")
-    val shortCode: String?,
 )
