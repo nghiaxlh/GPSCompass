@@ -23,7 +23,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/toolBar"
-        mapbox:mapbox_resourcesAccessToken="@string/map_access_token"
         mapbox:mapbox_cameraZoom="9.0" />
 
     <RelativeLayout

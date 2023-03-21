@@ -24,10 +24,13 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.bcg.gpscompass.MainActivity;
 import com.bcg.gpscompass.R;
+import com.bcg.gpscompass.repository.GpsCompassRepositoryImpl;
 import com.bcg.gpscompass.ui.base.BaseFragment;
+import com.bcg.gpscompass.ui.screen.AppViewModelFactory;
 import com.bcg.gpscompass.ui.screen.location.LocationFragment;
 import com.bcg.gpscompass.ui.view.CompassImageView;
 import com.bcg.gpscompass.utils.gps.GpsUtil;
@@ -37,9 +40,11 @@ import com.mapbox.android.core.location.LocationEngine;
 import com.mapbox.android.core.location.LocationEngineProvider;
 import com.mapbox.android.core.location.LocationEngineRequest;
 
-public class CompassFragment extends BaseFragment<CompassPresenter> implements SensorEventListener, CompassListener,LocationListenerCallback.LocationUpdateListener, View.OnClickListener {
+public class CompassFragment extends BaseFragment<CompassPresenter> implements SensorEventListener, CompassListener, LocationListenerCallback.LocationUpdateListener, View.OnClickListener {
 
     long DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L;
+
+    private CompassViewModel mViewModel;
     private SensorManagerCompass mSensorManagerCompass;
     private CompassImageView mCustomImageCompassView;
     private TextView mTxtAddress;
@@ -98,6 +103,7 @@ public class CompassFragment extends BaseFragment<CompassPresenter> implements S
         super.onCreate(savedInstanceState);
 //        mTypeface = ResourcesCompat.getFont(getActivity(), R.font.font_roboto_bold);
         mSensorManagerCompass = new SensorManagerCompass(requireActivity());
+        mViewModel = new ViewModelProvider(this, new AppViewModelFactory(new GpsCompassRepositoryImpl())).get(CompassViewModel.class);
         callback = new LocationListenerCallback(requireActivity(), this);
     }
 
@@ -335,7 +341,10 @@ public class CompassFragment extends BaseFragment<CompassPresenter> implements S
 
     @Override
     public void updateLocation(Location location) {
-        latitude = location.getLatitude();
-        longitude = location.getLongitude();
+        if (location != null) {
+            latitude = location.getLatitude();
+            longitude = location.getLongitude();
+            mViewModel.getFlowerList(latitude, longitude);
+        }
     }
 }

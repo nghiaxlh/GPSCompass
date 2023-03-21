@@ -13,6 +13,8 @@ import com.bcg.gpscompass.ui.screen.compass.CompassFragment;
 import com.bcg.gpscompass.ui.screen.privacy.PrivacyFragment;
 import com.bcg.gpscompass.utils.Navigator;
 import com.mapbox.android.core.permissions.PermissionsManager;
+import com.mapbox.maps.ResourceOptionsManager;
+import com.mapbox.maps.TileStoreUsageMode;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,6 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        ResourceOptionsManager.Companion.getDefault(this, BuildConfig.MapboxAccessToken);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         prefs = getPreferences(MODE_PRIVATE);
