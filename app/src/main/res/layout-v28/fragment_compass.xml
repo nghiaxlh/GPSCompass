@@ -15,7 +15,7 @@
         android:layout_centerInParent="true"
         android:src="@drawable/ic_compass" />
 
-    <androidx.appcompat.widget.AppCompatEditText
+    <androidx.appcompat.widget.AppCompatTextView
         android:id="@+id/tv_address"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,8 +24,12 @@
         android:layout_alignParentEnd="true"
         android:textAlignment="center"
         android:textColor="@color/white"
+        android:ellipsize="marquee"
+        android:maxLines="2"
         android:layout_marginBottom="44dp"
         android:layout_marginTop="44dp"
+        android:paddingLeft="44dp"
+        android:paddingRight="44dp"
         android:textSize="20sp"
         android:textStyle="bold"
         android:textFontWeight="500"

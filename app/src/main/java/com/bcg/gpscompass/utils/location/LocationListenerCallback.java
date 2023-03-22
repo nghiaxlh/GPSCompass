@@ -23,7 +23,6 @@ public class LocationListenerCallback
 
     @Override
     public void onSuccess(LocationEngineResult result) {
-
         Location lastLocation = result.getLastLocation();
         mListener.updateLocation(lastLocation);
     }

@@ -24,6 +24,6 @@ data class Address(
     @SerializedName("city") var city: String? = null,
     @SerializedName("postcode") var postcode: String? = null,
     @SerializedName("country") var country: String? = null,
-    @SerializedName("country_code") var countryCode: String? = null
-
+    @SerializedName("country_code") var countryCode: String? = null,
+    @SerializedName("neighbourhood") var neighbourhood: String? = null
 )

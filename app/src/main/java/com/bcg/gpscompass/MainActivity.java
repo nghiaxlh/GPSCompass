@@ -49,6 +49,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void addFragment(Fragment fragment) {
-        Navigator.addFragment(this, R.id.frame_container, fragment);
+        Navigator.replaceFragment(this, R.id.frame_container, fragment);
     }
 }

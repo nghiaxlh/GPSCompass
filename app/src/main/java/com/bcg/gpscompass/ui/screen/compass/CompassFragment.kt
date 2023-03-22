@@ -30,7 +30,8 @@ import com.bcg.gpscompass.repository.model.Geocoding
 import com.bcg.gpscompass.repository.remote.ApiState
 import com.bcg.gpscompass.ui.base.BaseFragment
 import com.bcg.gpscompass.ui.screen.AppViewModelFactory
-import com.bcg.gpscompass.ui.screen.location.LocationFragment.Companion.newInstance
+import com.bcg.gpscompass.ui.screen.location.LocationFragment
+import com.bcg.gpscompass.ui.screen.map.MapFragment
 import com.bcg.gpscompass.ui.view.CompassImageView
 import com.bcg.gpscompass.utils.gps.GpsUtil
 import com.bcg.gpscompass.utils.location.LocationListenerCallback
@@ -78,7 +79,7 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
         }
     private var callback: LocationListenerCallback? = null
     private var locationEngine: LocationEngine? = null
-    private val address: String? = null
+    private var currentAddress: String? = null
     private var latitude = 0.0
     private var longitude = 0.0
     override fun createPresenter(): CompassPresenter {
@@ -176,8 +177,12 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
                     }
                     is ApiState.Success -> {
                         val address = it.data as Geocoding
-                        mTxtAddress!!.text = address.displayName
-                        Log.d("nghialh ", address.displayName ?: "")
+                        val neighbourhood = if (address.address?.neighbourhood.isNullOrEmpty()) "" else "${address.address?.neighbourhood},"
+                        val city = address.address?.city
+                        val road = if (address.address?.road.isNullOrEmpty()) "" else "${address.address?.road},"
+                        val suburb = if (address.address?.suburb.isNullOrEmpty()) "" else "${address.address?.suburb},"
+                        "$road $neighbourhood $suburb $city".also { mTxtAddress!!.text = it }
+                        currentAddress = address.displayName
                     }
                     is ApiState.Empty -> {
                         println("Empty...")
@@ -273,17 +278,21 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
 
     override fun onClick(view: View) {
         when (view.id) {
-            R.id.btn_map_compass -> mPresenter!!.openViewGoogleMaps()
-            R.id.btn_location_compass -> mPresenter!!.openLocation()
+            R.id.btn_map_compass ->{
+                val mapFragment = MapFragment.newInstance(latitude, longitude)
+                (requireActivity() as MainActivity).addFragment(mapFragment)
+            }
+            R.id.btn_location_compass -> {
+                val fragment = LocationFragment.newInstance(currentAddress, latitude, longitude)
+                (requireActivity() as MainActivity).addFragment(fragment)
+            }
             R.id.btn_weather_compass -> {}
         }
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        if (locationEngine != null) {
-            locationEngine!!.removeLocationUpdates(callback!!)
-        }
+
     }
 
     override fun onStart() {
@@ -292,6 +301,9 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
 
     override fun onStop() {
         super.onStop()
+        if (locationEngine != null) {
+            locationEngine!!.removeLocationUpdates(callback!!)
+        }
     }
 
     override fun showViewGoogleMapsCompass() {
@@ -300,8 +312,7 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
     }
 
     override fun showLocationCompass() {
-        val fragment = newInstance("ABCD", latitude, longitude)
-        (requireActivity() as MainActivity).addFragment(fragment)
+
     }
 
     override fun showIconLocation() {
@@ -309,7 +320,7 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
             mBtnLocation!!.visibility = View.VISIBLE
             mBtnMap!!.visibility = View.VISIBLE
         } else {
-            mBtnLocation!!.visibility = View.INVISIBLE
+            mBtnLocation?.visibility = View.INVISIBLE
             mBtnMap!!.visibility = View.INVISIBLE
         }
     }
@@ -329,11 +340,10 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
     }
 
     override fun updateLocation(location: Location) {
-        if (location != null) {
-            latitude = location.latitude
-            longitude = location.longitude
-            mViewModel!!.getFlowerList(latitude, longitude)
-        }
+        print("nghialh updatelocation")
+        latitude = location.latitude
+        longitude = location.longitude
+        mViewModel!!.getFlowerList(latitude, longitude)
     }
 
     companion object {

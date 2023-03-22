@@ -56,18 +56,20 @@
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_alignParentEnd="true"
+            android:layout_toRightOf="@id/tv_title_address"
             android:layout_marginStart="16dp"
             android:layout_marginBottom="16dp"
             android:textColor="@color/white"
             android:textSize="14sp"
             android:textStyle="bold"
-            tool:text="16 Phạm Hùng, Từ Liêm, Hà Nội, Việt Nam" />
+            android:textAlignment="viewEnd"
+            tool:text="Tokyo" />
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/tv_title_latitude"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@id/tv_title_address"
+            android:layout_below="@id/tv_address"
             android:layout_alignParentStart="true"
             android:layout_marginBottom="16dp"
             android:text="@string/latitude"
