@@ -7,7 +7,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.AutoCompleteTextView
 import androidx.appcompat.widget.AppCompatImageView
+import androidx.appcompat.widget.SearchView
 import androidx.fragment.app.Fragment
 import com.bcg.gpscompass.R
 import com.bcg.gpscompass.ui.view.CompassImageView
@@ -15,7 +17,6 @@ import com.bcg.gpscompass.utils.gps.GpsUtil
 import com.bcg.gpscompass.utils.sensor.SensorManagerCompass
 import com.mapbox.geojson.Point
 import com.mapbox.maps.CameraOptions
-import com.mapbox.maps.MapInitOptions
 import com.mapbox.maps.MapView
 import com.mapbox.maps.Style
 import com.mapbox.maps.plugin.animation.MapAnimationOptions
@@ -37,6 +38,8 @@ class MapFragment : Fragment(), SensorEventListener {
     private lateinit var mBtnRotation: AppCompatImageView
     private lateinit var mBtnMyLocation: AppCompatImageView
     private lateinit var mCompassView: CompassImageView
+    private lateinit var mBtnBack: AppCompatImageView
+    private lateinit var mAutoTextView: AutoCompleteTextView
 
     private lateinit var mSensorManagerCompass: SensorManagerCompass
     private var mAccel = floatArrayOf(0f, 0f, 9.8f)
@@ -57,7 +60,6 @@ class MapFragment : Fragment(), SensorEventListener {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View? {
         mSensorManagerCompass = SensorManagerCompass(activity!!)
-        // Inflate the layout for this fragment
         return inflater.inflate(R.layout.fragment_map, container, false)
     }
 
@@ -68,6 +70,11 @@ class MapFragment : Fragment(), SensorEventListener {
         mBtnRotation = view.findViewById(R.id.btn_rotation)
         mBtnMyLocation = view.findViewById(R.id.btn_my_location)
         mCompassView = view.findViewById(R.id.compass_view)
+        mBtnBack = view.findViewById(R.id.btn_back)
+        mAutoTextView = view.findViewById(R.id.autoTextView)
+        mBtnBack.setOnClickListener(View.OnClickListener {
+            activity!!.onBackPressedDispatcher.onBackPressed()
+        })
         initMap()
     }
 
@@ -87,7 +94,7 @@ class MapFragment : Fragment(), SensorEventListener {
 
     private fun updateCamera(bearing: Double = 0.0) {
         val mapAnimationOptions = MapAnimationOptions.Builder().duration(1500L).build()
-        mMapView.camera.flyTo(
+        mMapView.camera.easeTo(
             CameraOptions.Builder()
                 .center(Point.fromLngLat(currentLongitude ?: 0.0, currentLatitude ?: 0.0))
                 .zoom(12.0)

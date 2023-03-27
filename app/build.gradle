@@ -13,7 +13,8 @@ android {
         targetSdk 33
         versionCode 1
         versionName "1.0"
-        buildConfigField ('String', "MapboxAccessToken", MAPBOX_ACCESS_TOKEN)
+        buildConfigField ('String', "MAPBOX_ACCESS_TOKEN", MAPBOX_ACCESS_TOKEN)
+        buildConfigField ('String', "WEATHER_ACCESS_TOKEN", WEATHER_ACCESS_TOKEN)
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -53,6 +54,9 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.6.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.6.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1")
+
+    implementation 'com.github.bumptech.glide:glide:4.15.0'
+    annotationProcessor 'com.github.bumptech.glide:compiler:4.15.0'
     
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'

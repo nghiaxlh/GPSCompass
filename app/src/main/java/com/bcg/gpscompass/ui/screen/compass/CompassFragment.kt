@@ -32,6 +32,7 @@ import com.bcg.gpscompass.ui.base.BaseFragment
 import com.bcg.gpscompass.ui.screen.AppViewModelFactory
 import com.bcg.gpscompass.ui.screen.location.LocationFragment
 import com.bcg.gpscompass.ui.screen.map.MapFragment
+import com.bcg.gpscompass.ui.screen.weather.WeatherFragment
 import com.bcg.gpscompass.ui.view.CompassImageView
 import com.bcg.gpscompass.utils.gps.GpsUtil
 import com.bcg.gpscompass.utils.location.LocationListenerCallback
@@ -80,6 +81,7 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
     private var callback: LocationListenerCallback? = null
     private var locationEngine: LocationEngine? = null
     private var currentAddress: String? = null
+    private var shortAddress: String? = null
     private var latitude = 0.0
     private var longitude = 0.0
     override fun createPresenter(): CompassPresenter {
@@ -181,7 +183,8 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
                         val city = address.address?.city
                         val road = if (address.address?.road.isNullOrEmpty()) "" else "${address.address?.road},"
                         val suburb = if (address.address?.suburb.isNullOrEmpty()) "" else "${address.address?.suburb},"
-                        "$road $neighbourhood $suburb $city".also { mTxtAddress!!.text = it }
+                        shortAddress = "$road $neighbourhood $suburb $city"
+                        shortAddress.also { mTxtAddress!!.text = it }
                         currentAddress = address.displayName
                     }
                     is ApiState.Empty -> {
@@ -286,7 +289,10 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
                 val fragment = LocationFragment.newInstance(currentAddress, latitude, longitude)
                 (requireActivity() as MainActivity).addFragment(fragment)
             }
-            R.id.btn_weather_compass -> {}
+            R.id.btn_weather_compass -> {
+                val fragment = WeatherFragment.newInstance(shortAddress, latitude, longitude)
+                (requireActivity() as MainActivity).addFragment(fragment)
+            }
         }
     }
 

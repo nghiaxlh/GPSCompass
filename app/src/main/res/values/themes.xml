@@ -22,4 +22,15 @@
     <style name="Theme.GPSCompass.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.GPSCompass.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="AppSearchView" parent="Widget.AppCompat.SearchView">
+        <!-- Text Size -->
+        <item name="android:textSize">16sp</item>
+        <!-- Query Text Color -->
+        <item name="android:textColorPrimary">@color/white</item>
+        <!-- Hint Color -->
+        <item name="android:textColorHint">@color/color_text_search_bar</item>
+        <!-- Icon Color -->
+        <item name="android:tint">@color/color_text_search_bar</item>
+    </style>
 </resources>

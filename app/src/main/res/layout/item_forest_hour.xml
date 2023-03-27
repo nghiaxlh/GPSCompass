@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:paddingVertical="16dp"
+    android:paddingHorizontal="20dp"
+    android:layout_marginEnd="12dp"
+    android:background="@drawable/background_forest_hour">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iconForestHour"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_forest_test" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvTempHour"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/white"
+        android:textSize="14sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/iconForestHour"
+        tools:text='18\u00B0C' />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/tvHourTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:textColor="@color/white"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/tvTempHour"
+        tools:text='4.00 PM' />
+</androidx.constraintlayout.widget.ConstraintLayout>

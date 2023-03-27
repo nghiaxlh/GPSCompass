@@ -27,4 +27,7 @@
     <string name="address">Address</string>
     <string name="latitude">Latitude</string>
     <string name="longitude">Longitude</string>
+    <string name="error_loading_page">An error occurred, please try again later</string>
+    <string name="data_empty">Data is empty!</string>
+    <string name="search">Search</string>
 </resources>

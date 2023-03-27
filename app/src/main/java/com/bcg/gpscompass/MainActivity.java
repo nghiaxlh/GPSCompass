@@ -26,7 +26,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        ResourceOptionsManager.Companion.getDefault(this, BuildConfig.MapboxAccessToken);
+        ResourceOptionsManager.Companion.getDefault(this, BuildConfig.MAPBOX_ACCESS_TOKEN);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         prefs = getPreferences(MODE_PRIVATE);

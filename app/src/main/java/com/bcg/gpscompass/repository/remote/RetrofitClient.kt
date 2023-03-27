@@ -31,10 +31,18 @@ object RetrofitClient {
             resp
         }.build()
 
-    val retrofit: ApiService by lazy {
+    val geoCodingClient: ApiService by lazy {
         Retrofit.Builder()
             .addConverterFactory(GsonConverterFactory.create(gson))
-            .baseUrl(ApiUtil.BASE_URL)
+            .baseUrl(ApiUtil.BASE_GEOCODE_URL)
+            .client(okHttpClient)
+            .build().create(ApiService::class.java)
+    }
+
+    val weatherClient: ApiService by lazy {
+        Retrofit.Builder()
+            .addConverterFactory(GsonConverterFactory.create(gson))
+            .baseUrl(ApiUtil.BASE_WEATHER_URL)
             .client(okHttpClient)
             .build().create(ApiService::class.java)
     }
