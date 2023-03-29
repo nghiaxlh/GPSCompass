@@ -26,8 +26,9 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data android:name="CLOUDMADE_KEY" android:value="caf28022b6d84b39a7b1a86f91c860cb" />
-
+        <meta-data
+            android:name="com.google.android.gms.ads.APPLICATION_ID"
+            android:value="ca-app-pub-xxxxxxxxxxxxxxxx~yyyyyyyyyy"/>
     </application>
 
 </manifest>
