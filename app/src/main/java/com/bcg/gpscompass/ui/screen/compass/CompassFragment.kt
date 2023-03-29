@@ -346,7 +346,6 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
     }
 
     override fun updateLocation(location: Location) {
-        print("nghialh updatelocation")
         latitude = location.latitude
         longitude = location.longitude
         mViewModel!!.getFlowerList(latitude, longitude)
