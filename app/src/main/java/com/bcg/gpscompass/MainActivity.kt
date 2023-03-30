@@ -1,11 +1,15 @@
 package com.bcg.gpscompass
 
+import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.lifecycleScope
 import com.bcg.gpscompass.repository.GpsCompassRepositoryImpl
+import com.bcg.gpscompass.repository.model.firebase.UpdateAppModel
 import com.bcg.gpscompass.ui.screen.AppViewModelFactory
 import com.bcg.gpscompass.ui.screen.compass.CompassFragment
 import com.bcg.gpscompass.ui.screen.compass.CompassFragment.Companion.newInstance
@@ -14,6 +18,7 @@ import com.bcg.gpscompass.utils.Constants
 import com.bcg.gpscompass.utils.Navigator
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.maps.ResourceOptionsManager.Companion.getDefault
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private var mCompassFragment: CompassFragment? = null
@@ -35,6 +40,24 @@ class MainActivity : AppCompatActivity() {
             showPrivacyUI()
         } else {
             showCompassUI()
+        }
+        init()
+    }
+
+    private fun init() {
+        lifecycleScope.launch {
+            val model:UpdateAppModel? = mViewModel.checkUpdateApp()
+            if (model?.update == true || model?.force == true) {
+                val updateDialog = AlertDialog.Builder(this@MainActivity)
+                updateDialog.setTitle("New update available")
+                updateDialog.setMessage("A new version is available. Update the app to continue")
+                updateDialog.setNegativeButton("Cancel") { dialog, which ->
+                    dialog.dismiss()
+                }
+                updateDialog.setPositiveButton("UPDATE") { dialog, which ->
+                    //TODO open URL
+                }
+            }
         }
     }
 
