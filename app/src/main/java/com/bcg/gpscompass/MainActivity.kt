@@ -1,6 +1,5 @@
 package com.bcg.gpscompass
 
-import android.content.DialogInterface
 import android.content.SharedPreferences
 import android.os.Bundle
 import androidx.appcompat.app.AlertDialog
@@ -8,6 +7,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import com.bcg.gpscompass.ads.InterstitialAds
 import com.bcg.gpscompass.repository.GpsCompassRepositoryImpl
 import com.bcg.gpscompass.repository.model.firebase.UpdateAppModel
 import com.bcg.gpscompass.ui.screen.AppViewModelFactory
@@ -16,6 +16,7 @@ import com.bcg.gpscompass.ui.screen.compass.CompassFragment.Companion.newInstanc
 import com.bcg.gpscompass.ui.screen.privacy.PrivacyFragment
 import com.bcg.gpscompass.utils.Constants
 import com.bcg.gpscompass.utils.Navigator
+import com.google.android.gms.ads.MobileAds
 import com.mapbox.android.core.permissions.PermissionsManager
 import com.mapbox.maps.ResourceOptionsManager.Companion.getDefault
 import kotlinx.coroutines.launch
@@ -26,10 +27,14 @@ class MainActivity : AppCompatActivity() {
     private lateinit var prefs: SharedPreferences
     private val permissionsManager: PermissionsManager? = null
     private lateinit var mViewModel: MainViewModel
+    private lateinit var mInterstitialAds: InterstitialAds
     override fun onCreate(savedInstanceState: Bundle?) {
         getDefault(this, BuildConfig.MAPBOX_ACCESS_TOKEN)
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        MobileAds.initialize(this) {}
+        mInterstitialAds = InterstitialAds(this, getString(R.string.interstitial_id_1))
+        mInterstitialAds.onShowScreen { }
         mViewModel = ViewModelProvider(
             this,
             AppViewModelFactory(GpsCompassRepositoryImpl())
@@ -46,7 +51,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun init() {
         lifecycleScope.launch {
-            val model:UpdateAppModel? = mViewModel.checkUpdateApp()
+            val model: UpdateAppModel? = mViewModel.checkUpdateApp()
             if (model?.update == true || model?.force == true) {
                 val updateDialog = AlertDialog.Builder(this@MainActivity)
                 updateDialog.setTitle("New update available")
@@ -72,6 +77,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun addFragment(fragment: Fragment?) {
-        Navigator.replaceFragment(this, R.id.frame_container, fragment)
+        mInterstitialAds.showInterstitial {
+            Navigator.replaceFragment(this, R.id.frame_container, fragment)
+        }
     }
 }
