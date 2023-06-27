@@ -11,16 +11,18 @@ import android.hardware.SensorManager
 import android.location.Location
 import android.os.Bundle
 import android.os.Looper
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.animation.TranslateAnimation
 import android.widget.ImageButton
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.bcg.gpscompass.MainActivity
@@ -28,10 +30,10 @@ import com.bcg.gpscompass.R
 import com.bcg.gpscompass.repository.GpsCompassRepositoryImpl
 import com.bcg.gpscompass.repository.model.Geocoding
 import com.bcg.gpscompass.repository.remote.ApiState
-import com.bcg.gpscompass.ui.base.BaseFragment
 import com.bcg.gpscompass.ui.screen.AppViewModelFactory
 import com.bcg.gpscompass.ui.screen.location.LocationFragment
 import com.bcg.gpscompass.ui.screen.map.MapFragment
+import com.bcg.gpscompass.ui.screen.payment.PaymentFragment
 import com.bcg.gpscompass.ui.screen.weather.WeatherFragment
 import com.bcg.gpscompass.ui.view.CompassImageView
 import com.bcg.gpscompass.utils.gps.GpsUtil
@@ -42,8 +44,10 @@ import com.mapbox.android.core.location.LocationEngine
 import com.mapbox.android.core.location.LocationEngineProvider
 import com.mapbox.android.core.location.LocationEngineRequest
 import kotlinx.coroutines.launch
+import kotlin.math.asin
+import kotlin.math.sqrt
 
-class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, CompassListener,
+class CompassFragment : Fragment(), SensorEventListener,
     LocationUpdateListener, View.OnClickListener {
     var DEFAULT_INTERVAL_IN_MILLISECONDS = 1000L
     private var mViewModel: CompassViewModel? = null
@@ -53,17 +57,19 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
     private var mBtnMap: ImageButton? = null
     private var mBtnLocation: ImageButton? = null
     private var mBtnWeather: ImageButton? = null
+    private var mInAppPurcharse: AppCompatImageView? = null
+    lateinit var mEquilibration: RelativeLayout
+    lateinit var mIvBall: ImageView
     private val mTypeface: Typeface? = null
     private var mCurrentMagnetic = 0
     private var valuesAccel = floatArrayOf(0f, 0f, 9.8f)
     private var valuesMagnetic = floatArrayOf(0.5f, 0f, 0f)
     private var mAzimuth = 0f
-    private var mGravity: FloatArray? = null
-    private val currentInclinationX = 0.0
-    private val currentInclinationY = 0.0
-    private var startInclinationX = 0.0
-    private var startInclinationY = 0.0
-    private val ivBallCompass: ImageView? = null
+    private var mGravity: FloatArray = FloatArray(3)
+    private var currentInclinationX = 0.0f
+    private var currentInclinationY = 0.0f
+    private var startInclinationX = 0.0f
+    private var startInclinationY = 0.0f
     private val AA = 0.3f
     var DEFAULT_MAX_WAIT_TIME = DEFAULT_INTERVAL_IN_MILLISECONDS * 5
     private val requestPermissionLauncher =
@@ -84,9 +90,6 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
     private var shortAddress: String? = null
     private var latitude = 0.0
     private var longitude = 0.0
-    override fun createPresenter(): CompassPresenter {
-        return CompassPresenter(this)
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -98,9 +101,9 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
         callback = LocationListenerCallback(requireActivity(), this)
     }
 
-    protected fun xyzBall(
+    private fun xyzBall(
         mFloat1: FloatArray,
-        mFloat2: FloatArray?,
+        mFloat2: FloatArray,
         currentFloat: Float
     ): FloatArray {
         if (mFloat2 == null) {
@@ -113,16 +116,18 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
     }
 
     private fun tiltDevice() {
-//        double dbMath = Math.sqrt(mGravity[0] * mGravity[0] + mGravity[1] * mGravity[1] + mGravity[2] * mGravity[2]);
-//        double[] dbListArray = new double[3];
-//        dbListArray[0] = (mGravity[0] / dbMath);
-//        dbListArray[1] = (mGravity[1] / dbMath);
-//        dbListArray[2] = (mGravity[2] / dbMath);
-//        currentInclinationX = (-Math.toDegrees(Math.asin(dbListArray[0])));
-//        currentInclinationY = Math.toDegrees(Math.asin(dbListArray[1]));
-//        double dbLayout = rlLimited.getWidth() / 2 - ivBallCompass.getWidth() / 2;
-//        currentInclinationX = (dbLayout * -dbListArray[0]);
-//        currentInclinationY = (dbLayout * dbListArray[1]);
+        val dbMath = sqrt(
+            mGravity[0] * mGravity[0] + mGravity[1] * mGravity[1] + mGravity[2] * mGravity[2]
+        )
+        val dbListArray = FloatArray(3)
+        dbListArray[0] = mGravity[0] / dbMath
+        dbListArray[1] = mGravity[1] / dbMath
+        dbListArray[2] = mGravity[2] / dbMath
+        currentInclinationX = -Math.toDegrees(asin(dbListArray[0]).toDouble()).toFloat()
+        currentInclinationY = Math.toDegrees(asin(dbListArray[1]).toDouble()).toFloat()
+        val dbLayout: Int = mEquilibration.width / 2 - mIvBall.width / 2
+        currentInclinationX = dbLayout * -dbListArray[0]
+        currentInclinationY = dbLayout * dbListArray[1]
     }
 
     override fun onCreateView(
@@ -135,20 +140,14 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
         mBtnLocation = view.findViewById<View>(R.id.btn_location_compass) as ImageButton
         mCustomImageCompassView = view.findViewById<View>(R.id.iv_compass) as CompassImageView
         mTxtAddress = view.findViewById<View>(R.id.tv_address) as TextView
-        //mTvDegreesDirection = (TextView) view.findViewById(R.id.tv_degrees_direction_home);
-//        mTvCity.setTypeface(mTypeface);
-//        mTvCity.setEllipsize(TextUtils.TruncateAt.MARQUEE);
-//        mTvCity.setSelected(true);
-//        mTvCity.setText("Wait...");
-//        mTvDegreesDirection.setTypeface(mTypeface);
-//        nativeExpressAdView = view.findViewById(R.id.ads_banner_home);
-
-//        rlLimited = view.findViewById(R.id.rl_limit);
-//        ivBallCompass = view.findViewById(R.id.iv_ball);
+        mEquilibration = view.findViewById(R.id.rl_equilibration);
+        mIvBall = view.findViewById(R.id.iv_ball);
         mBtnWeather = view.findViewById(R.id.btn_weather_compass)
+        mInAppPurcharse = view.findViewById(R.id.iv_inapp_purchase)
         mBtnWeather!!.setOnClickListener(this)
         mBtnLocation!!.setOnClickListener(this)
         mBtnMap!!.setOnClickListener(this)
+        mInAppPurcharse!!.setOnClickListener(this)
         if (ContextCompat.checkSelfPermission(
                 requireActivity(), Manifest.permission.ACCESS_FINE_LOCATION
             ) ==
@@ -221,17 +220,17 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
     }
 
     override fun onSensorChanged(sensorEvent: SensorEvent) {
-        mPresenter!!.changeDirection(sensorEvent)
+        setChangeDirectionCompass(sensorEvent)
         if (sensorEvent.sensor.type == Sensor.TYPE_ACCELEROMETER) {
             mGravity = xyzBall(sensorEvent.values.clone(), mGravity, AA)
             tiltDevice()
-            val a1 = DoubleArray(2)
+            val a1 = FloatArray(2)
             a1[0] = startInclinationX
             a1[1] = startInclinationY
-            val a2 = DoubleArray(2)
+            val a2 = FloatArray(2)
             a2[0] = -currentInclinationX
             a2[1] = -currentInclinationY
-            //xyzAnim(ivBallCompass, a1, a2, 210);
+            xyzAnim(mIvBall, a1, a2, 210);
             startInclinationX = -currentInclinationX
             startInclinationY = -currentInclinationY
         }
@@ -241,22 +240,19 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
         if (sensor.type == Sensor.TYPE_MAGNETIC_FIELD) {
             when (i) {
                 SensorManager.SENSOR_STATUS_ACCURACY_LOW -> {
-                    mPresenter!!.calibrateCompass(SensorManager.SENSOR_STATUS_ACCURACY_LOW)
                     mCurrentMagnetic = SensorManager.SENSOR_STATUS_ACCURACY_LOW
                 }
                 SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM -> {
-                    mPresenter!!.calibrateCompass(SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM)
                     mCurrentMagnetic = SensorManager.SENSOR_STATUS_ACCURACY_MEDIUM
                 }
                 SensorManager.SENSOR_STATUS_ACCURACY_HIGH -> {
-                    mPresenter!!.calibrateCompass(SensorManager.SENSOR_STATUS_ACCURACY_HIGH)
                     mCurrentMagnetic = SensorManager.SENSOR_STATUS_ACCURACY_HIGH
                 }
             }
         }
     }
 
-    override fun setChangeDirectionCompass(sensorEvent: SensorEvent) {
+    private fun setChangeDirectionCompass(sensorEvent: SensorEvent) {
         if (sensorEvent.sensor.type == Sensor.TYPE_ACCELEROMETER) {
             valuesAccel = GpsUtil.lowPass(sensorEvent.values, valuesAccel)
             mSensorManagerCompass!!.gravity = valuesAccel
@@ -273,8 +269,8 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
             mAzimuth = newAzimuth
             mCustomImageCompassView!!.setDegress(-mAzimuth)
             mCustomImageCompassView!!.invalidate()
-            val degrees = Math.round(mAzimuth)
-            val direction = GpsUtil.displayDirection(mAzimuth)
+//            val degrees = Math.round(mAzimuth)
+//            val direction = GpsUtil.displayDirection(mAzimuth)
             //mTvDegreesDirection.setText(getString(R.string.text_direction, degrees, direction));
         }
     }
@@ -293,16 +289,11 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
                 val fragment = WeatherFragment.newInstance(shortAddress, latitude, longitude)
                 (requireActivity() as MainActivity).addFragment(fragment)
             }
+            R.id.iv_inapp_purchase -> {
+                val fragment = PaymentFragment.newInstance()
+                (requireActivity() as MainActivity).addFragment(fragment)
+            }
         }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-
-    }
-
-    override fun onStart() {
-        super.onStart()
     }
 
     override fun onStop() {
@@ -312,39 +303,6 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
         }
     }
 
-    override fun showViewGoogleMapsCompass() {
-//        Intent intent = new Intent(getActivity(), GoogleMapsActivity.class);
-//        startActivity(intent);
-    }
-
-    override fun showLocationCompass() {
-
-    }
-
-    override fun showIconLocation() {
-        if (mBtnLocation != null) {
-            mBtnLocation!!.visibility = View.VISIBLE
-            mBtnMap!!.visibility = View.VISIBLE
-        } else {
-            mBtnLocation?.visibility = View.INVISIBLE
-            mBtnMap!!.visibility = View.INVISIBLE
-        }
-    }
-
-    override fun getCalibrate(calibrate: Int) {
-//        if (1 == calibrate || 2 == calibrate) {
-//            mBtnWarningApp.setColorFilter(ContextCompat.getColor(Objects.requireNonNull(getActivity()), R.color.color_warning));
-//        } else {
-//            mBtnWarningApp.setColorFilter(ContextCompat.getColor(Objects.requireNonNull(getActivity()), R.color.color_white));
-//        }
-    }
-
-    override fun showWarningCompass() {
-//        Intent intent = new Intent(getActivity(), HowToUseActivity.class);
-//        intent.putExtra(AppConstantUtils.CALIBRATE_MAGENTIC_COMPASS, mCurrentMagnetic);
-//        startActivity(intent);
-    }
-
     override fun updateLocation(location: Location) {
         latitude = location.latitude
         longitude = location.longitude
@@ -352,7 +310,6 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
     }
 
     companion object {
-        private const val CURRENT_REQUEST = 112
 
         @JvmStatic
         fun newInstance(): CompassFragment {
@@ -360,17 +317,17 @@ class CompassFragment : BaseFragment<CompassPresenter?>(), SensorEventListener, 
         }
 
         fun xyzAnim(
-            paramView: View,
-            paramArrayOfDouble1: DoubleArray,
-            paramArrayOfDouble2: DoubleArray,
+            paramView: ImageView,
+            paramArrayOfDouble1: FloatArray,
+            paramArrayOfDouble2: FloatArray,
             paramInt: Int
         ) {
             try {
                 val localTranslateAnimation = TranslateAnimation(
-                    paramArrayOfDouble1[0].toFloat(),
-                    paramArrayOfDouble2[0].toFloat(),
-                    paramArrayOfDouble1[1].toFloat(),
-                    paramArrayOfDouble2[1].toFloat()
+                    paramArrayOfDouble1[0],
+                    paramArrayOfDouble2[0],
+                    paramArrayOfDouble1[1],
+                    paramArrayOfDouble2[1]
                 )
                 localTranslateAnimation.duration = paramInt.toLong()
                 localTranslateAnimation.isFillEnabled = true

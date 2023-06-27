@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="backgroundColor">#FF0A0F15</color>
-    <color name="backgroundButtonColor">#FF1F2429</color>
+    <color name="background_color">#FF0A0F15</color>
+    <color name="background_button_color">#FF1F2429</color>
     <color name="color_black_B3303030">#B3303030</color>
     <color name="color_search_bar">#33F2F2F2</color>
     <color name="color_text_search_bar">#33F2F2F2</color>
-    <color name="buttonColor1">#FF759BFD</color>
-    <color name="buttonColor2">#FF3A6DF1</color>
+    <color name="button_color_1">#FF759BFD</color>
+    <color name="button_color_2">#FF3A6DF1</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="color_white_E0E0E0">#FFE0E0E0</color>
     <color name="hint_color">#BDBDBD</color>
+    <color name="color_button_trial_1">#25FFCB</color>
+    <color name="color_button_trial_2">#009D94</color>
 </resources>

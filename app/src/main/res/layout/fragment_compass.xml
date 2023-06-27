@@ -4,84 +4,145 @@
     xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor"
-    android:gravity="center"
+    android:background="@color/background_color"
     tool:context=".MainActivity">
 
-    <com.bcg.gpscompass.ui.view.CompassImageView
-        android:id="@+id/iv_compass"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:src="@drawable/ic_compass" />
-
-    <androidx.appcompat.widget.AppCompatTextView
-        android:id="@+id/tv_address"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/iv_compass"
-        android:layout_alignParentStart="true"
-        android:layout_alignParentEnd="true"
-        android:textAlignment="center"
-        android:maxLines="2"
-        android:ellipsize="marquee"
-        android:textColor="@color/white"
-        android:layout_marginBottom="44dp"
-        android:layout_marginTop="44dp"
-        android:paddingLeft="44dp"
-        android:paddingRight="44dp"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        tool:text="Hà nội" />
-
     <RelativeLayout
-        android:id="@+id/rl_components"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/tv_address"
+        android:layout_height="match_parent"
+        android:background="@color/background_color"
         android:gravity="center">
 
-        <ImageButton
-            android:id="@+id/btn_location_compass"
-            android:layout_width="wrap_content"
+
+        <RelativeLayout
+            android:id="@+id/rl_compass"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <com.bcg.gpscompass.ui.view.CompassImageView
+                android:id="@+id/iv_compass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="24dp"
+                android:layout_centerInParent="true"
+                android:src="@drawable/ic_compass_2" />
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                app:srcCompat="@drawable/ic_compass_line_center" />
+
+            <RelativeLayout
+                android:id="@+id/rl_equilibration"
+                android:layout_width="55dp"
+                android:layout_height="55dp"
+                android:layout_centerInParent="true">
+
+                <ImageView
+                    android:layout_width="55dp"
+                    android:layout_height="55dp"
+                    android:src="@drawable/ball_compass" />
+
+                <View
+                    android:layout_width="0.25dp"
+                    android:layout_height="match_parent"
+                    android:layout_centerHorizontal="true"
+                    android:background="@color/white" />
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.25dp"
+                    android:layout_centerVertical="true"
+                    android:background="@color/white" />
+
+                <ImageView
+                    android:id="@+id/iv_ball"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_centerInParent="true"
+                    android:src="@drawable/ic_gyroscope" />
+            </RelativeLayout>
+
+        </RelativeLayout>
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/tv_address"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_below="@id/rl_compass"
             android:layout_alignParentStart="true"
-            android:layout_marginEnd="12dp"
-            android:background="@drawable/background_button_rectangle"
-            android:contentDescription="@string/location"
-            android:paddingStart="16dp"
-            android:paddingTop="12dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="12dp"
-            app:srcCompat="@drawable/ic_location" />
+            android:layout_alignParentEnd="true"
+            android:layout_marginTop="44dp"
+            android:layout_marginBottom="44dp"
+            android:ellipsize="marquee"
+            android:maxLines="2"
+            android:paddingLeft="44dp"
+            android:paddingRight="44dp"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            tool:text="Hà nội" />
 
-        <ImageButton
-            android:id="@+id/btn_weather_compass"
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:id="@+id/rl_components"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginEnd="12dp"
-            android:layout_toEndOf="@id/btn_location_compass"
-            android:background="@drawable/background_button_rectangle"
-            android:contentDescription="@string/weather"
-            android:paddingStart="16dp"
-            android:paddingTop="12dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="12dp"
-            app:srcCompat="@drawable/ic_weather" />
+            android:layout_below="@id/tv_address"
+            android:gravity="center">
 
-        <ImageButton
-            android:id="@+id/btn_map_compass"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_toEndOf="@id/btn_weather_compass"
-            android:background="@drawable/background_button_rectangle"
-            android:contentDescription="@string/map"
-            android:paddingStart="16dp"
-            android:paddingTop="12dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="12dp"
-            app:srcCompat="@drawable/ic_map" />
+            <ImageButton
+                android:id="@+id/btn_location_compass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentStart="true"
+                android:layout_marginEnd="12dp"
+                android:background="@drawable/background_button_rectangle"
+                android:contentDescription="@string/location"
+                android:paddingStart="16dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="12dp"
+                app:srcCompat="@drawable/ic_location" />
+
+            <ImageButton
+                android:id="@+id/btn_weather_compass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:layout_toEndOf="@id/btn_location_compass"
+                android:background="@drawable/background_button_rectangle"
+                android:contentDescription="@string/weather"
+                android:paddingStart="16dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="12dp"
+                app:srcCompat="@drawable/ic_weather" />
+
+            <ImageButton
+                android:id="@+id/btn_map_compass"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="12dp"
+                android:layout_toEndOf="@id/btn_weather_compass"
+                android:background="@drawable/background_button_rectangle"
+                android:contentDescription="@string/map"
+                android:paddingStart="16dp"
+                android:paddingTop="12dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="12dp"
+                app:srcCompat="@drawable/ic_map" />
+        </RelativeLayout>
     </RelativeLayout>
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/iv_inapp_purchase"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_marginRight="16dp"
+        android:layout_marginTop="16dp"
+        android:padding="8dp"
+        app:srcCompat="@drawable/ic_inapp_purcharse" />
 </RelativeLayout>

@@ -4,8 +4,14 @@
     xmlns:tool="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/backgroundColor">
-
+    android:background="@color/background_color">
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolBar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
     <androidx.appcompat.widget.AppCompatImageView
         android:id="@+id/img_header"
         android:layout_width="0dp"
@@ -172,17 +178,22 @@
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginTop="40dp"
+        android:layout_marginHorizontal="24dp"
+        android:gravity="center_vertical"
         app:layout_constraintTop_toBottomOf="@id/ln_subscriptions">
 
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/btn_try_it_now"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
             android:paddingTop="12dp"
             android:paddingBottom="12dp"
+            android:gravity="center"
+            android:background="@drawable/background_button_payment"
+            android:layout_weight="2.5"
             tool:text="TRY IT NOW" />
         <androidx.appcompat.widget.AppCompatTextView
             android:id="@+id/btn_use_free"
@@ -193,7 +204,20 @@
             android:textStyle="bold"
             android:paddingTop="12dp"
             android:gravity="center"
+            android:background="@drawable/background_button_payment_trial"
+            android:layout_weight="2"
             android:paddingBottom="12dp"
             tool:text="7 DAYS \n FOR FREE" />
     </LinearLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textColor="@color/white"
+        android:textAlignment="center"
+        android:textSize="8sp"
+        android:padding="16dp"
+        tool:text = "After 3-day trial for free, you’ll go through a paid subscription for 199.99$/year to unlock full features. You can cancel it anytime! Privacy Policy."/>
 </androidx.constraintlayout.widget.ConstraintLayout>

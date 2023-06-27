@@ -32,7 +32,7 @@ class Security {
      * your local.properties, it will be echoed into BuildConfig.
      */
 
-    final private static String BASE_64_ENCODED_PUBLIC_KEY = BuildConfig.BASE64_ENCODED_PUBLIC_KEY;
+    final private static String BASE_64_ENCODED_PUBLIC_KEY = "BuildConfig.BASE64_ENCODED_PUBLIC_KEY";
 
     /**
      * Verifies that the data was signed with the given signature

@@ -4,14 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:background="@color/backgroundColor"
+    android:background="@color/background_color"
     tools:context=".ui.screen.weather.WeatherFragment">
 
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolBar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="@color/backgroundColor"
+        android:background="@color/background_color"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -28,7 +28,7 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/backgroundColor">
+            android:background="@color/background_color">
 
             <RelativeLayout
                 android:id="@+id/rl_address"
@@ -250,7 +250,7 @@
         android:layout_width="40dp"
         android:layout_height="40dp"
         android:visibility="gone"
-        app:indicatorColor="@color/buttonColor2"
+        app:indicatorColor="@color/button_color_2"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"

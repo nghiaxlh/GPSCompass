@@ -1,9 +1,8 @@
 package com.bcg.gpscompass.ui.screen.weather
 
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import android.view.MenuItem.OnMenuItemClickListener
 import android.widget.ProgressBar
 import androidx.appcompat.widget.AppCompatImageView
 import androidx.appcompat.widget.AppCompatTextView
@@ -26,7 +25,7 @@ import kotlinx.coroutines.launch
  * Use the [WeatherFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class WeatherFragment : Fragment() {
+class WeatherFragment : Fragment(), Toolbar.OnMenuItemClickListener {
     private var address: String? = null
     private var latitude: Double? = null
     private var longitude: Double? = null
@@ -55,6 +54,7 @@ class WeatherFragment : Fragment() {
             latitude = arguments!!.getDouble(ARG_LATITUDE)
             longitude = arguments!!.getDouble(ARG_LONGITUDE)
         }
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(
@@ -77,6 +77,8 @@ class WeatherFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         mToolbar = view.findViewById(R.id.toolBar)
+        mToolbar?.inflateMenu(R.menu.weather_menu)
+        mToolbar?.setOnMenuItemClickListener(this)
         mLoadingView = view.findViewById(R.id.loadingView)
         mContentView = view.findViewById(R.id.nestScrollView)
         mToolbar!!.setNavigationIcon(R.drawable.ic_back_white)
@@ -96,6 +98,23 @@ class WeatherFragment : Fragment() {
         mRecyclerViewForestHour!!.adapter = mHourAdapter
         mRecyclerViewForestDay!!.adapter = mDayAdapter
         loadData()
+    }
+
+
+    override fun onMenuItemClick(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.temp_type -> {
+                true
+            }
+            else -> {
+                false
+            }
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.weather_menu, menu);
+        super.onCreateOptionsMenu(menu, inflater)
     }
 
     private fun loadData() {
